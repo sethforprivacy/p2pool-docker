@@ -22,7 +22,7 @@ ENV BOOST_DEBUG         1
 WORKDIR /p2pool
 
 # Git pull Monero source at specified tag/branch
-RUN git clone --recursive https://github.com/SChernykh/p2pool .
+RUN git clone --recursive https://github.com/SChernykh/p2pool.git .
 
 # Make static Monero binaries
 ARG NPROC
