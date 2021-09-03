@@ -62,3 +62,4 @@ services:
   volumes:
     bitmonero:
     tor-keys:
+    p2pool-data:
