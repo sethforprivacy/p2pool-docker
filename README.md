@@ -3,7 +3,8 @@ A simple and straightforward Dockerized [p2pool](https://github.com/SChernykh/p2
 
 ## Actions
 
-[![Weekly Update Rebuild](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-base-image.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-base-image.yml) 
+[![Daily Update Rebuild](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-daily.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-daily.yml)  
+[![Weekly Update Rebuild](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-base-image.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-base-image.yml)  
 [![Latest Dockerfile build](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-image-on-push.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-image-on-push.yml)  
 [![Container security scan with Trivy](https://github.com/sethsimmons/p2pool-docker//actions/workflows/trivy-analysis.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/trivy-analysis.yml)
 
