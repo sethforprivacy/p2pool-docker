@@ -16,6 +16,20 @@ services:
       - "--no-igd"
       - "--enable-dns-blocklist"
       - "--prune-blockchain"
+  
+  p2pool:
+    image: sethsimmons/p2pool:latest
+    restart: unless-stopped
+    container_name: p2pool
+    volumes:
+      - p2pool-data:/home/monero
+    ports:
+      - 3333:3333
+      - 37889:37889
+    command:
+      - "--host monerod"
+      - "--rpc-port 18089"
+      - "--wallet MoneroAddress"
 
   tor:
     image: goldy/tor-hidden-service:latest

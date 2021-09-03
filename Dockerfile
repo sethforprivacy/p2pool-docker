@@ -1,6 +1,3 @@
-# From https://github.com/leonardochaia/docker-monerod/blob/master/src/Dockerfile
-ARG MONERO_BRANCH=v0.17.2.0
-
 # Select Ubuntu 20.04LTS for the build image base
 FROM ubuntu:20.04 as build
 LABEL author="sethsimmons@pm.me" \
@@ -10,12 +7,9 @@ LABEL author="sethsimmons@pm.me" \
 # Added DEBIAN_FRONTEND=noninteractive to workaround tzdata prompt on installation
 RUN apt-get update \
     && apt-get upgrade -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends build-essential cmake \
-    pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev ca-certificates \
-    libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev \
-    libexpat1-dev doxygen graphviz libpgm-dev qttools5-dev-tools libhidapi-dev \
-    libusb-dev libprotobuf-dev protobuf-compiler libgtest-dev git \
-    libnorm-dev libpgm-dev libusb-1.0-0-dev libudev-dev libgssapi-krb5-2 \
+    && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends git \
+    build-essential cmake libuv1-dev libzmq3-dev libsodium-dev libpgm-dev libnorm-dev \
+    libgss-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,24 +18,15 @@ ENV CXXFLAGS='-fPIC'
 ENV USE_SINGLE_BUILDDIR 1
 ENV BOOST_DEBUG         1
 
-# Switch to directory for gtest and make/install libs
-WORKDIR /usr/src/gtest
-RUN cmake . \
-    && make \
-    && cp ./lib/libgtest*.a /usr/lib
-
 # Switch to Monero source directory
-WORKDIR /monero
+WORKDIR /p2pool
 
 # Git pull Monero source at specified tag/branch
-ARG MONERO_BRANCH
-RUN git clone --recursive --branch ${MONERO_BRANCH} \
-    https://github.com/monero-project/monero . \
-    && git submodule init && git submodule update
+RUN git clone --recursive https://github.com/SChernykh/p2pool .
 
 # Make static Monero binaries
 ARG NPROC
-RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && make -j"$(cat /nproc)" release-static
+RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && mkdir build && cd build && cmake .. && make -j"$(cat /nproc)"
 
 # Select Ubuntu 20.04LTS for the image base
 FROM ubuntu:20.04
@@ -49,27 +34,22 @@ FROM ubuntu:20.04
 # Install remaining dependencies
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get install --no-install-recommends -y curl libnorm-dev libpgm-dev libgssapi-krb5-2 \
+    && apt-get install --no-install-recommends -y libuv1-dev libzmq3-dev libsodium-dev libpgm-dev libnorm-dev libgss-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Add user and setup directories for monerod
-RUN useradd -ms /bin/bash monero \
-    && mkdir -p /home/monero/.bitmonero \
-    && chown -R monero:monero /home/monero/.bitmonero
-USER monero
+RUN useradd -ms /bin/bash p2pool
+USER p2pool
 
 # Switch to home directory and install newly built monerod binary
-WORKDIR /home/monero
-COPY --chown=monero:monero --from=build /monero/build/release/bin/monerod /usr/local/bin/monerod
+WORKDIR /home/p2pool
+COPY --chown=p2pool:p2pool --from=build /p2pool/build/p2pool /usr/local/bin/p2pool
 
 # Expose p2p and restricted RPC ports
-EXPOSE 18080
-EXPOSE 18089
-
-# Add HEALTHCHECK against get_info endpoint
-HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://localhost:18089/get_info || exit 1
+EXPOSE 3333
+EXPOSE 37889
 
 # Start monerod with required --non-interactive flag and sane defaults that are overridden by user input (if applicable)
-ENTRYPOINT ["monerod", "--non-interactive"]
-CMD ["--rpc-restricted-bind-ip=0.0.0.0", "--rpc-restricted-bind-port=18089", "--no-igd", "--no-zmq", "--enable-dns-blocklist"]
+ENTRYPOINT ["p2pool"]
+CMD ["--host monerod", "--stratum 0.0.0.0:3333", "--p2p 0.0.0.0:37889", "--addpeers 65.21.227.114:37889", "--addpeers node.sethforprivacy.com:37889"]
