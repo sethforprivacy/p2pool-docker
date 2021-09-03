@@ -9,7 +9,7 @@ RUN apt-get update \
     && apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends git \
     build-essential cmake libuv1-dev libzmq3-dev libsodium-dev libpgm-dev libnorm-dev \
-    libgss-dev \
+    libgss-dev ca-certificates\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -22,7 +22,7 @@ ENV BOOST_DEBUG         1
 WORKDIR /p2pool
 
 # Git pull Monero source at specified tag/branch
-RUN git clone --recursive https://github.com/SChernykh/p2pool.git .
+RUN git clone --recursive https://github.com/SChernykh/p2pool .
 
 # Make static Monero binaries
 ARG NPROC
