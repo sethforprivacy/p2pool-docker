@@ -19,13 +19,14 @@ This repo is used to build the images available at:
 https://hub.docker.com/r/sethsimmons/p2pool
 
 # Tags
-I will always release the latest Monero version under the `latest` tag.
 
-`latest`: The latest tagged version of Monero from https://github.com/monero-project/monero/tags  
+`latest`: The daily rebuild from source at https://github.com/SChernykh/p2pool
 
 # Recommended usage
 
-TBD
+```bash
+docker run -d --name="p2pool" -p 3333:3333 -p 37889:37889 -v p2pool-data:/home/p2pool sethsimmons/p2pool:latest --host node.sethforprivacy.com --rpc-port 18089 --wallet MoneroAddress --stratum 0.0.0.0:3333 --p2p 0.0.0.0:37889 --addpeers 65.21.227.114:37889
+```
 
 # Copyrights
 
