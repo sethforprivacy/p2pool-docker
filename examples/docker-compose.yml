@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     container_name: p2pool
     volumes:
-      - p2pool-data:/home/monero
+      - p2pool-data:/home/p2pool
     ports:
       - 3333:3333
       - 37889:37889
