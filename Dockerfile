@@ -38,11 +38,11 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Add user and setup directories for monerod
+# Add user and setup directories for p2pool
 RUN useradd -ms /bin/bash p2pool
 USER p2pool
 
-# Switch to home directory and install newly built monerod binary
+# Switch to home directory and install newly built p2pool binary
 WORKDIR /home/p2pool
 COPY --chown=p2pool:p2pool --from=build /p2pool/build/p2pool /usr/local/bin/p2pool
 
@@ -50,6 +50,6 @@ COPY --chown=p2pool:p2pool --from=build /p2pool/build/p2pool /usr/local/bin/p2po
 EXPOSE 3333
 EXPOSE 37889
 
-# Start monerod with required --non-interactive flag and sane defaults that are overridden by user input (if applicable)
+# Start p2pool with required --non-interactive flag and sane defaults that are overridden by user input (if applicable)
 ENTRYPOINT ["p2pool"]
-CMD ["--host monerod", "--stratum 0.0.0.0:3333", "--p2p 0.0.0.0:37889", "--addpeers 65.21.227.114:37889", "--addpeers node.sethforprivacy.com:37889"]
+CMD ["--host p2pool", "--stratum 0.0.0.0:3333", "--p2p 0.0.0.0:37889", "--addpeers 65.21.227.114:37889", "--addpeers node.sethforprivacy.com:37889"]

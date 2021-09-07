@@ -26,7 +26,7 @@ https://hub.docker.com/r/sethsimmons/p2pool
 # Recommended usage
 
 ```bash
-docker run -d --name="p2pool" -p 3333:3333 -p 37889:37889 -v p2pool-data:/home/p2pool sethsimmons/p2pool:latest --host node.sethforprivacy.com --rpc-port 18089 --wallet MoneroAddress --stratum 0.0.0.0:3333 --p2p 0.0.0.0:37889 --addpeers 65.21.227.114:37889
+docker run -d --name="p2pool" -p 3333:3333 -p 37889:37889 -v p2pool-data:/home/p2pool sethsimmons/p2pool:latest --host node.sethforprivacy.com --rpc-port 18089 --wallet MoneroAddress --stratum 0.0.0.0:3333 --p2p 0.0.0.0:37889 --addpeers 65.21.227.114:37889 --addpeers node.sethforprivacy.com:37889
 ```
 
 # Copyrights
