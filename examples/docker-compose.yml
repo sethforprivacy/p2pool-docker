@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   monerod:
-    image: sethsimmons/simple-monerod:latest
+    image: sethsimmons/simple-monerod:p2pool-api-v0.17
     restart: unless-stopped
     container_name: monerod
     volumes:
@@ -41,9 +41,12 @@ services:
     restart: unless-stopped
     links:
         - monerod
+        - p2pool
     environment:
-        SERVICE1_TOR_SERVICE_HOSTS: 18089:monerod:18089
-        SERVICE1_TOR_SERVICE_VERSION: '3'
+        MONEROD_TOR_SERVICE_HOSTS: 18089:monerod:18089
+        MONEROD_TOR_SERVICE_VERSION: '3'
+        P2POOL_TOR_SERVICE_HOSTS: 3333:p2pool:3333
+        P2POOL_TOR_SERVICE_VERSION: '3'
     volumes:
         - tor-keys:/var/lib/tor/hidden_service/
 
