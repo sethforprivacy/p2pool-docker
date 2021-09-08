@@ -8,6 +8,7 @@ services:
       - bitmonero:/home/monero
     ports:
       - 18080:18080
+      - 18083:18083
       - 18089:18089
     command:
       - "--rpc-restricted-bind-ip=0.0.0.0"
@@ -16,6 +17,8 @@ services:
       - "--no-igd"
       - "--enable-dns-blocklist"
       - "--prune-blockchain"
+      - "--zmq-pub=tcp://0.0.0.0:18083"
+      - "--out-peers=50"
   
   p2pool:
     image: sethsimmons/p2pool:latest
@@ -23,13 +26,14 @@ services:
     container_name: p2pool
     volumes:
       - p2pool-data:/home/p2pool
+      - /dev/hugepages:/dev/hugepages:rw
     ports:
       - 3333:3333
       - 37889:37889
-    command:
-      - "--host monerod"
-      - "--rpc-port 18089"
-      - "--wallet MoneroAddress"
+    command: >-
+      --wallet "468ydghFfthE3UTc53eF5MP9UyrMcUiAHP5kizVYJsej5XGaXBoAAEzUHCcUF7t3E3RrYAX8Rs1ujhBdcvMpZSbH8qkb55R"
+      --stratum "0.0.0.0:3333" --p2p "0.0.0.0:37889"
+      --addpeers "65.21.227.114:37889,node.sethforprivacy.com:37889" --host "monerod"
 
   tor:
     image: goldy/tor-hidden-service:latest
