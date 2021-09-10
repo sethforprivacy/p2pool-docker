@@ -24,6 +24,8 @@ services:
     image: sethsimmons/p2pool:latest
     restart: unless-stopped
     container_name: p2pool
+    tty: true
+    stdin_open: true
     volumes:
       - p2pool-data:/home/p2pool
       - /dev/hugepages:/dev/hugepages:rw
