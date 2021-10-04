@@ -23,6 +23,7 @@ ENV BOOST_DEBUG         1
 WORKDIR /p2pool
 
 # Git pull p2pool source at specified tag/branch
+ARG P2POOL_BRANCH
 RUN git clone --recursive --branch ${P2POOL_BRANCH} https://github.com/SChernykh/p2pool .
 
 # Make static p2pool binary
