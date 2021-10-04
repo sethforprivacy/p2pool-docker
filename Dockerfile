@@ -1,10 +1,11 @@
+ARG P2POOL_BRANCH=v1.1
+
 # Select Ubuntu 20.04LTS for the build image base
 FROM ubuntu:20.04 as build
-LABEL author="sethsimmons@pm.me" \
-      maintainer="sethsimmons@pm.me"
+LABEL author="sethforprivacy@protonmail.com" \
+      maintainer="sethforprivacy@protonmail.com"
 
-# Dependency list from https://github.com/monero-project/monero#compiling-monero-from-source
-# Added DEBIAN_FRONTEND=noninteractive to workaround tzdata prompt on installation
+# Dependency list from https://github.com/SChernykh/p2pool#ubuntu-2004
 RUN apt-get update \
     && apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends git \
@@ -18,13 +19,13 @@ ENV CXXFLAGS='-fPIC'
 ENV USE_SINGLE_BUILDDIR 1
 ENV BOOST_DEBUG         1
 
-# Switch to Monero source directory
+# Switch to p2pool source directory
 WORKDIR /p2pool
 
-# Git pull Monero source at specified tag/branch
-RUN git clone --recursive https://github.com/SChernykh/p2pool .
+# Git pull p2pool source at specified tag/branch
+RUN git clone --recursive --branch ${P2POOL_BRANCH} https://github.com/SChernykh/p2pool .
 
-# Make static Monero binaries
+# Make static p2pool binary
 ARG NPROC
 RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && mkdir build && cd build && cmake .. && make -j"$(cat /nproc)"
 

@@ -27,6 +27,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: "Checkout repository"
         uses: "actions/checkout@v2.3.4"
+      - 
+        name: "Get p2pool Release Tag"
+        id: get_tag
+        run: echo "::set-output name=tag::$(awk -F "=" '/P2POOL_BRANCH=/ {print $2}' Dockerfile)"
       -
         name: Build and push to Docker Hub and Github Packages Docker Registry
         id: docker_build
@@ -35,18 +39,18 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/p2pool:latest
+            ghcr.io/${{ github.repository_owner }}/p2pool:${{ steps.get_tag.outputs.tag }}
             ${{ secrets.DOCKER_USERNAME }}/p2pool:latest
+            ${{ secrets.DOCKER_USERNAME }}/p2pool:${{ steps.get_tag.outputs.tag }}
           labels: |
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/p2pool:latest
-          cache-to: type=inline
       - 
         name: Scan new image and output results
         uses: Azure/container-scan@v0
         with:
-          image-name: ${{ secrets.DOCKER_USERNAME }}/p2pool:latest
+          image-name: ${{ secrets.DOCKER_USERNAME }}/p2pool:${{ steps.get_tag.outputs.tag }}
           severity-threshold: HIGH
       -
         name: Image digest
