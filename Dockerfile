@@ -1,4 +1,4 @@
-ARG P2POOL_BRANCH=v1.2
+ARG P2POOL_BRANCH=v1.3
 
 # Select Ubuntu 20.04LTS for the build image base
 FROM ubuntu:20.04 as build
