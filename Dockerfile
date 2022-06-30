@@ -10,7 +10,7 @@ RUN apt-get update \
     && apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends git \
     build-essential cmake libuv1-dev libzmq3-dev libsodium-dev libpgm-dev libnorm-dev \
-    libgss-dev ca-certificates\
+    libgss-dev libcurl4-openssl-dev libidn2-0-dev ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -36,7 +36,8 @@ FROM ubuntu:20.04
 # Install remaining dependencies
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get install --no-install-recommends -y libuv1-dev libzmq3-dev libsodium-dev libpgm-dev libnorm-dev libgss-dev \
+    && apt-get install --no-install-recommends -y libuv1-dev libzmq3-dev libsodium-dev \
+    libpgm-dev libnorm-dev libgss-dev libcurl4-openssl-dev libidn2-0-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
