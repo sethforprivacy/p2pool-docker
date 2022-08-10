@@ -3,12 +3,23 @@ on:
   schedule:
     - cron: "0 12 * * 1" # Run every Monday at noon.
   workflow_dispatch:
+
 jobs:
   rebuild-container:
     name: "Rebuild Container with the latest base image"
     runs-on: ubuntu-latest
     steps:
-      -
+      - 
+        name: Prepare outputs
+        id: prep
+        run: |
+          echo "::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2.0.0
+        with:
+          platforms: linux/arm64
+      - 
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.0.0
       -
@@ -30,12 +41,13 @@ jobs:
         name: "Get p2pool Release Tag"
         id: get_tag
         run: echo "::set-output name=tag::$(awk -F "=" '/P2POOL_BRANCH=/ {print $2}' Dockerfile)"
-      -
-        name: Build and push to Docker Hub and Github Packages Docker Registry
+      - 
+        name: Build and push to Docker Hub and GitHub Packages Docker Registry
         id: docker_build
         uses: docker/build-push-action@v3.1.1
         with:
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ghcr.io/${{ github.repository_owner }}/p2pool:latest
             ghcr.io/${{ github.repository_owner }}/p2pool:${{ steps.get_tag.outputs.tag }}
@@ -45,6 +57,3 @@ jobs:
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
-      -
-        name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
