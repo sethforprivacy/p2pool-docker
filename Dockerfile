@@ -1,7 +1,7 @@
 ARG P2POOL_BRANCH=v2.5
 
-# Select Ubuntu 20.04LTS for the build image base
-FROM ubuntu:20.04 as build
+# Select latest Ubuntu LTS for the build image base
+FROM ubuntu:latest as build
 LABEL author="sethforprivacy@protonmail.com" \
       maintainer="sethforprivacy@protonmail.com"
 
@@ -30,8 +30,8 @@ RUN git clone --recursive --branch ${P2POOL_BRANCH} https://github.com/SChernykh
 ARG NPROC
 RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && mkdir build && cd build && cmake .. && make -j"$(cat /nproc)"
 
-# Select Ubuntu 20.04LTS for the image base
-FROM ubuntu:20.04
+# Select latest Ubuntu LTS for the image base
+FROM ubuntu:latest
 
 # Install remaining dependencies
 RUN apt-get update \
