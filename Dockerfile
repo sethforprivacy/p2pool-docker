@@ -1,3 +1,5 @@
+ARG P2POOL_BRANCH=v3.2
+
 # Select latest Ubuntu LTS for the build image base
 FROM ubuntu:latest as build
 LABEL author="sethforprivacy@protonmail.com" \
@@ -20,15 +22,9 @@ ENV BOOST_DEBUG         1
 # Switch to p2pool source directory
 WORKDIR /p2pool
 
-# Git pull p2pool source to determine latest tag/branch
-RUN git clone https://github.com/SChernykh/p2pool .
-
 # Git pull p2pool source at specified tag/branch
-RUN export P2POOL_BRANCH=$(git log --tags --simplify-by-decoration --pretty="format:%ai %d"|sort -r|grep 'tag:' \
-    |head -n1|sed -r 's/^.*tag: ([^,]+).*\)/\1/g') && \
-    git checkout ${P2POOL_BRANCH} && \
-    git submodule init && \
-    git submodule update --recursive
+ARG P2POOL_BRANCH
+RUN git clone --recursive --branch ${P2POOL_BRANCH} https://github.com/SChernykh/p2pool .
 
 # Make static p2pool binary
 ARG NPROC
