@@ -24,7 +24,8 @@ WORKDIR /p2pool
 RUN git clone https://github.com/SChernykh/p2pool .
 
 # Git pull p2pool source at specified tag/branch
-RUN export P2POOL_BRANCH=$(git log --tags --simplify-by-decoration --pretty="format:%ai %d" |sort -r|grep 'tag:'|head -n1|sed -r 's/^.*tag: ([^\)]*)\)/\1/g') && \
+RUN export P2POOL_BRANCH=$(git log --tags --simplify-by-decoration --pretty="format:%ai %d"|sort -r|grep 'tag:' \
+    |head -n1|sed -r 's/^.*tag: ([^,]+).*\)/\1/g') && \
     git checkout ${P2POOL_BRANCH} && \
     git submodule init && \
     git submodule update --recursive
