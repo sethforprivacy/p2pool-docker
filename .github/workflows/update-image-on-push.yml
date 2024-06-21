@@ -45,7 +45,7 @@ jobs:
         run: echo "::set-output name=tag::$(awk -F "=" '/P2POOL_BRANCH=/ {print $2}' Dockerfile)"
       - 
         name: Build and push to Docker Hub and GitHub Packages Docker Registry
-        uses: docker/build-push-action@v6.0.1
+        uses: docker/build-push-action@v6.1.0
         id: docker_build_push
         with:
           push: true
