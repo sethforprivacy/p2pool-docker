@@ -54,7 +54,7 @@ jobs:
       - 
         name: Test-run image
         run: |
-          docker run --rm p2pool:testing &
+          docker run --rm p2pool:testing --wallet 468ydghFfthE3UTc53eF5MP9UyrMcUiAHP5kizVYJsej5XGaXBoAAEzUHCcUF7t3E3RrYAX8Rs1ujhBdcvMpZSbH8qkb55R &
           PID=$!
           sleep 30
           kill -SIGINT $PID # this will return a non-zero exit code if the container dies early on
