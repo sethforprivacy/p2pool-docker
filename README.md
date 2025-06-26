@@ -5,19 +5,9 @@ A simple and straightforward Dockerized [p2pool](https://github.com/SChernykh/p2
 
 [![Daily Update Rebuild](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-daily.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-daily.yml)  
 [![Weekly Update Rebuild](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-base-image.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-base-image.yml)  
-[![Latest Dockerfile build](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-image-on-push.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-image-on-push.yml)  
-[![Container security scan with Trivy](https://github.com/sethsimmons/p2pool-docker//actions/workflows/trivy-analysis.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/trivy-analysis.yml)
-
-## Docker
-
-![Docker Pulls](https://img.shields.io/docker/pulls/sethsimmons/p2pool)  
-![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/sethsimmons/p2pool)  
-![Docker Image Version (latest by date)](https://img.shields.io/docker/v/sethsimmons/p2pool)  
 
 # Docker Hub
-This repo is used to build the images available at:
-
-https://hub.docker.com/r/sethsimmons/p2pool
+This repo is used to build the images available here on GHCR.
 
 # Tags
 
