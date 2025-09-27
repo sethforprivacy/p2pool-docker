@@ -1,4 +1,4 @@
-ARG P2POOL_BRANCH=v4.10.1
+ARG P2POOL_BRANCH=v4.11
 
 # Select latest Ubuntu LTS for the build image base
 FROM ubuntu:latest as build
