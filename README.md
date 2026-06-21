@@ -3,8 +3,8 @@ A simple and straightforward Dockerized [p2pool](https://github.com/SChernykh/p2
 
 ## Actions
 
-[![Daily Update Rebuild](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-daily.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-daily.yml)  
-[![Weekly Update Rebuild](https://github.com/sethsimmons/p2pool-docker//actions/workflows/update-base-image.yml/badge.svg)](https://github.com/sethsimmons/p2pool-docker/actions/workflows/update-base-image.yml)  
+[![Daily Update Rebuild](https://github.com/sethforprivacy/p2pool-docker//actions/workflows/update-daily.yml/badge.svg)](https://github.com/sethforprivacy/p2pool-docker/actions/workflows/update-daily.yml)  
+[![Weekly Update Rebuild](https://github.com/sethforprivacy/p2pool-docker//actions/workflows/update-base-image.yml/badge.svg)](https://github.com/sethforprivacy/p2pool-docker/actions/workflows/update-base-image.yml)  
 
 # Docker Hub
 This repo is used to build the images available here on GHCR.
