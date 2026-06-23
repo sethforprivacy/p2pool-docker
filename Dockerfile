@@ -1,3 +1,4 @@
+# renovate: datasource=github-releases depName=SChernykh/p2pool
 ARG P2POOL_BRANCH=v4.17
 
 # Select latest Ubuntu LTS for the build image base
