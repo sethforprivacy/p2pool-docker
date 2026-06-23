@@ -8,12 +8,26 @@ on:
     - 'Dockerfile'
   workflow_dispatch:
 
+# Least-privilege default; jobs that push opt into packages: write below
+permissions:
+  contents: read
+
+# Never run two prod pushes for the same ref concurrently (avoid racing the
+# manifest/`latest` tag); do not cancel an in-flight push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   GHCR_REPO: ghcr.io/${{ github.repository_owner }}/p2pool
 
 jobs:
   build:
     name: "Build container for multiple architectures and push by digest"
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -38,28 +52,53 @@ jobs:
         with:
           images: |
             ${{ env.GHCR_REPO }}
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4.1.0
-      -
-        name: Login to GitHub Container Registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v7
-      -
-        name: Build and and push by digest
+        with:
+          persist-credentials: false
+      - name: Build and push by digest
         uses: docker/build-push-action@v7.2.0
         id: build
         with:
           outputs: type=image,"name=${{ env.GHCR_REPO }}",push-by-digest=true,name-canonical=true,push=true
           platforms: ${{ env.PLATFORM }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.GHCR_REPO }}:latest
+          cache-from: |
+            type=registry,ref=${{ env.GHCR_REPO }}:buildcache-${{ env.DIGEST_NAME }}
+            type=registry,ref=${{ env.GHCR_REPO }}:latest
+          cache-to: type=registry,ref=${{ env.GHCR_REPO }}:buildcache-${{ env.DIGEST_NAME }},mode=max
+
+      # Smoke-test the exact artifact that was just pushed, BEFORE the merge job
+      # tags it `latest`. If this fails, the merge job (needs: build) never runs.
+      - name: Verify pushed image reports the pinned p2pool tag
+        run: |
+          set -euo pipefail
+          EXPECTED="$(awk -F= '/^ARG P2POOL_BRANCH=/{print $2; exit}' Dockerfile)"
+          REF="${GHCR_REPO}@${{ steps.build.outputs.digest }}"
+          echo "Expecting ${EXPECTED} from ${REF}"
+          OUT="$(docker run --rm "${REF}" --help 2>&1 || true)"
+          echo "${OUT}" | head -1
+          echo "${OUT}" | grep -q "${EXPECTED}" \
+            || { echo "::error::pushed image banner does not contain expected tag ${EXPECTED}"; exit 1; }
+      - name: Verify pushed image starts and stays up
+        run: |
+          set -uo pipefail
+          REF="${GHCR_REPO}@${{ steps.build.outputs.digest }}"
+          CID="$(docker run -d "${REF}" --wallet 468ydghFfthE3UTc53eF5MP9UyrMcUiAHP5kizVYJsej5XGaXBoAAEzUHCcUF7t3E3RrYAX8Rs1ujhBdcvMpZSbH8qkb55R)"
+          sleep 20
+          if [ "$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || echo false)" != "true" ]; then
+            echo "::error::pushed image exited early"; docker logs "$CID" 2>&1 || true
+            docker rm -f "$CID" >/dev/null 2>&1 || true; exit 1
+          fi
+          docker rm -f "$CID" >/dev/null 2>&1 || true
 
       - name: Export digest
         run: |
@@ -76,9 +115,14 @@ jobs:
           retention-days: 1
 
   merge:
+    name: "Merge digests and push with proper tags"
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     needs:
       - build
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Download digests
         uses: actions/download-artifact@v8
@@ -99,7 +143,9 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v7
-      
+        with:
+          persist-credentials: false
+
       - name: Get p2pool release tag
         run: echo P2POOL_TAG="$(awk -F '=' '/P2POOL_BRANCH=/ {print $2}' Dockerfile)" >> $GITHUB_ENV
 

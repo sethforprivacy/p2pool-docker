@@ -11,12 +11,25 @@ on:
     - 'Dockerfile'
   workflow_dispatch:
 
+# Least-privilege default token (this workflow only reads the repo and pulls cache)
+permissions:
+  contents: read
+
+# Cancel superseded runs for the same ref to save CI minutes
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   GHCR_REPO: ghcr.io/${{ github.repository_owner }}/p2pool
 
 jobs:
   rebuild-container:
     name: "Build image with cache"
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: read
     strategy:
       fail-fast: false
       matrix:
@@ -35,14 +48,13 @@ jobs:
         run: |
           echo "PLATFORM=linux/amd64" >> $GITHUB_ENV
           echo "DIGEST_NAME=amd64" >> $GITHUB_ENV
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4.1.0
-      -
-        name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v7
-      -
-        name: Test build of image
+        with:
+          persist-credentials: false
+      - name: Test build of image
         id: build
         uses: docker/build-push-action@v7.2.0
         with:
@@ -50,11 +62,25 @@ jobs:
           load: true
           platforms: ${{ env.PLATFORM }}
           tags: p2pool:testing
-          cache-from: type=registry,ref=${{ env.GHCR_REPO }}:latest
-      - 
-        name: Test-run image
+          cache-from: |
+            type=registry,ref=${{ env.GHCR_REPO }}:buildcache-${{ env.DIGEST_NAME }}
+            type=registry,ref=${{ env.GHCR_REPO }}:latest
+      - name: Verify reported version matches the pinned p2pool tag
         run: |
-          docker run --rm p2pool:testing --wallet 468ydghFfthE3UTc53eF5MP9UyrMcUiAHP5kizVYJsej5XGaXBoAAEzUHCcUF7t3E3RrYAX8Rs1ujhBdcvMpZSbH8qkb55R &
-          PID=$!
-          sleep 30
-          kill -SIGINT $PID # this will return a non-zero exit code if the container dies early on
+          set -euo pipefail
+          EXPECTED="$(awk -F= '/^ARG P2POOL_BRANCH=/{print $2; exit}' Dockerfile)"
+          echo "Expecting p2pool to report: ${EXPECTED}"
+          OUT="$(docker run --rm p2pool:testing --help 2>&1 || true)"
+          echo "${OUT}" | head -1
+          echo "${OUT}" | grep -q "${EXPECTED}" \
+            || { echo "::error::p2pool banner does not contain expected tag ${EXPECTED}"; exit 1; }
+      - name: Verify the container starts and stays up
+        run: |
+          set -uo pipefail
+          CID="$(docker run -d p2pool:testing --wallet 468ydghFfthE3UTc53eF5MP9UyrMcUiAHP5kizVYJsej5XGaXBoAAEzUHCcUF7t3E3RrYAX8Rs1ujhBdcvMpZSbH8qkb55R)"
+          sleep 20
+          if [ "$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || echo false)" != "true" ]; then
+            echo "::error::container exited early"; docker logs "$CID" 2>&1 || true
+            docker rm -f "$CID" >/dev/null 2>&1 || true; exit 1
+          fi
+          docker rm -f "$CID" >/dev/null 2>&1 || true
