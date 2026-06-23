@@ -2,7 +2,7 @@
 ARG P2POOL_BRANCH=v4.17
 
 # Pin to the latest Ubuntu LTS for the build image base (kept current by Renovate)
-FROM ubuntu:24.04 as build
+FROM ubuntu:26.04 as build
 LABEL author="sethforprivacy@protonmail.com" \
       maintainer="sethforprivacy@protonmail.com"
 
@@ -32,7 +32,7 @@ ARG NPROC
 RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && mkdir build && cd build && cmake .. && make -j"$(cat /nproc)"
 
 # Pin to the latest Ubuntu LTS for the image base (kept current by Renovate)
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 # Install only the runtime shared libraries that the p2pool binary links against
 # (runtime equivalents of the build-stage -dev packages, verified via ldd on the
