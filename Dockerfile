@@ -1,8 +1,8 @@
 # renovate: datasource=github-releases depName=SChernykh/p2pool
 ARG P2POOL_BRANCH=v4.17
 
-# Select latest Ubuntu LTS for the build image base
-FROM ubuntu:latest as build
+# Pin to the latest Ubuntu LTS for the build image base (kept current by Renovate)
+FROM ubuntu:24.04 as build
 LABEL author="sethforprivacy@protonmail.com" \
       maintainer="sethforprivacy@protonmail.com"
 
@@ -25,20 +25,22 @@ WORKDIR /p2pool
 
 # Git pull p2pool source at specified tag/branch
 ARG P2POOL_BRANCH
-RUN git clone --recursive --branch ${P2POOL_BRANCH} https://github.com/SChernykh/p2pool .
+RUN git clone --recursive --depth 1 --shallow-submodules --branch ${P2POOL_BRANCH} https://github.com/SChernykh/p2pool .
 
 # Make static p2pool binary
 ARG NPROC
 RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && mkdir build && cd build && cmake .. && make -j"$(cat /nproc)"
 
-# Select latest Ubuntu LTS for the image base
-FROM ubuntu:latest
+# Pin to the latest Ubuntu LTS for the image base (kept current by Renovate)
+FROM ubuntu:24.04
 
-# Install remaining dependencies
+# Install only the runtime shared libraries that the p2pool binary links against
+# (runtime equivalents of the build-stage -dev packages, verified via ldd on the
+# built binary against the pinned Ubuntu 24.04 base)
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get install --no-install-recommends -y libuv1-dev libzmq3-dev libsodium-dev \
-    libpgm-dev libnorm-dev libgss-dev libcurl4-openssl-dev libidn2-0-dev \
+    && apt-get install --no-install-recommends -y libuv1t64 libzmq5 libsodium23 \
+    libpgm-5.3-0t64 libnorm1t64 libgssapi-krb5-2 libcurl4t64 libidn2-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
