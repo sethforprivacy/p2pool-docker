@@ -2,7 +2,7 @@
 ARG P2POOL_BRANCH=v4.17
 
 # Pin to the latest Ubuntu LTS for the build image base (kept current by Renovate)
-FROM ubuntu:26.04 as build
+FROM ubuntu:26.04 AS build
 LABEL author="sethforprivacy@protonmail.com" \
       maintainer="sethforprivacy@protonmail.com"
 
@@ -17,8 +17,8 @@ RUN apt-get update \
 
 ENV CFLAGS='-fPIC'
 ENV CXXFLAGS='-fPIC'
-ENV USE_SINGLE_BUILDDIR 1
-ENV BOOST_DEBUG         1
+ENV USE_SINGLE_BUILDDIR=1
+ENV BOOST_DEBUG=1
 
 # Switch to p2pool source directory
 WORKDIR /p2pool
