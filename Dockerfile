@@ -1,5 +1,5 @@
 # renovate: datasource=github-releases depName=SChernykh/p2pool
-ARG P2POOL_BRANCH=v4.17
+ARG P2POOL_BRANCH=v4.17.1
 
 # Pin to the latest Ubuntu LTS for the build image base (kept current by Renovate)
 FROM ubuntu:26.04 AS build
