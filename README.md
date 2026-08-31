@@ -3,15 +3,14 @@ A simple and straightforward Dockerized [p2pool](https://github.com/SChernykh/p2
 
 ## Actions
 
-[![Daily Update Rebuild](https://github.com/sethforprivacy/p2pool-docker//actions/workflows/update-daily.yml/badge.svg)](https://github.com/sethforprivacy/p2pool-docker/actions/workflows/update-daily.yml)  
-[![Weekly Update Rebuild](https://github.com/sethforprivacy/p2pool-docker//actions/workflows/update-base-image.yml/badge.svg)](https://github.com/sethforprivacy/p2pool-docker/actions/workflows/update-base-image.yml)  
+[![Latest Dockerfile build on push](https://github.com/sethforprivacy/p2pool-docker/actions/workflows/update-image-on-push.yml/badge.svg)](https://github.com/sethforprivacy/p2pool-docker/actions/workflows/update-image-on-push.yml)  
 
 # Docker Hub
 This repo is used to build the images available here on GHCR.
 
 # Tags
 
-`latest`: The daily rebuild from source at https://github.com/SChernykh/p2pool
+`latest`: The latest version of p2pool built from source at https://github.com/SChernykh/p2pool; the image is rebuilt only when the Dockerfile changes
 
 # Recommended usage
 

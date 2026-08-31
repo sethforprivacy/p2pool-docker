@@ -1,8 +1,9 @@
 # renovate: datasource=github-releases depName=SChernykh/p2pool
 ARG P2POOL_BRANCH=v4.18
+ARG P2POOL_COMMIT_HASH=1748daae01ee7c657cc77bab5f9862abdf5a6041
 
-# Pin to the latest Ubuntu LTS for the build image base (kept current by Renovate)
-FROM ubuntu:26.04 AS build
+# Pin to the latest Ubuntu LTS for the build image base (digest-pinned, kept current by Renovate)
+FROM ubuntu:26.04@sha256:2260313b31c8c011cd2eebe728008efac1b3982be73eb71348ea2648d2c0e09b AS build
 LABEL author="sethforprivacy@protonmail.com" \
       maintainer="sethforprivacy@protonmail.com"
 
@@ -11,7 +12,7 @@ RUN apt-get update \
     && apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends git \
     build-essential cmake libuv1-dev libzmq3-dev libsodium-dev libpgm-dev libnorm-dev \
-    libgss-dev libcurl4-openssl-dev libidn2-0-dev ca-certificates \
+    libgss-dev libcurl4-openssl-dev libidn2-dev ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,18 +26,20 @@ WORKDIR /p2pool
 
 # Git pull p2pool source at specified tag/branch
 ARG P2POOL_BRANCH
-RUN git clone --recursive --depth 1 --shallow-submodules --branch ${P2POOL_BRANCH} https://github.com/SChernykh/p2pool .
+ARG P2POOL_COMMIT_HASH
+RUN git clone --recursive --depth 1 --shallow-submodules --branch ${P2POOL_BRANCH} https://github.com/SChernykh/p2pool . \
+    && test `git rev-parse HEAD` = ${P2POOL_COMMIT_HASH} || exit 1
 
 # Make static p2pool binary
 ARG NPROC
 RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && mkdir build && cd build && cmake .. && make -j"$(cat /nproc)"
 
-# Pin to the latest Ubuntu LTS for the image base (kept current by Renovate)
-FROM ubuntu:26.04
+# Pin to the latest Ubuntu LTS for the image base (digest-pinned, kept current by Renovate)
+FROM ubuntu:26.04@sha256:2260313b31c8c011cd2eebe728008efac1b3982be73eb71348ea2648d2c0e09b
 
 # Install only the runtime shared libraries that the p2pool binary links against
 # (runtime equivalents of the build-stage -dev packages, verified via ldd on the
-# built binary against the pinned Ubuntu 24.04 base)
+# built binary against the pinned Ubuntu 26.04 base)
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y libuv1t64 libzmq5 libsodium23 \
@@ -55,6 +58,9 @@ COPY --chown=p2pool:p2pool --from=build /p2pool/build/p2pool /usr/local/bin/p2po
 # Expose p2p and restricted RPC ports
 EXPOSE 3333
 EXPOSE 37889
+
+# Healthcheck: TCP-connect to the stratum listener; p2pool binds 0.0.0.0:3333 by default
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/3333' || exit 1
 
 # Start p2pool with required --non-interactive flag and sane defaults that are overridden by user input (if applicable)
 ENTRYPOINT ["p2pool"]
