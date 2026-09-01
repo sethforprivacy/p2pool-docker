@@ -7,8 +7,9 @@ services:
       - bitmonero:/home/monero
     ports:
       - 18080:18080
-      - 18083:18083
-      - 18089:18089
+      # Container-network access suffices for p2pool; bind loopback to avoid host-wide exposure
+      - 127.0.0.1:18083:18083
+      - 127.0.0.1:18089:18089
     command:
       - "--rpc-restricted-bind-ip=0.0.0.0"
       - "--rpc-restricted-bind-port=18089"
