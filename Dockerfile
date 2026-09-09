@@ -3,7 +3,7 @@ ARG P2POOL_BRANCH=v4.18
 ARG P2POOL_COMMIT_HASH=1748daae01ee7c657cc77bab5f9862abdf5a6041
 
 # Pin to the latest Ubuntu LTS for the build image base (digest-pinned, kept current by Renovate)
-FROM ubuntu:26.04@sha256:2260313b31c8c011cd2eebe728008efac1b3982be73eb71348ea2648d2c0e09b AS build
+FROM ubuntu:26.04@sha256:513c074113a871b51a8d16ab445c88779d6452d937a164fb5cc479f32668a41d AS build
 LABEL author="sethforprivacy@protonmail.com" \
       maintainer="sethforprivacy@protonmail.com"
 
@@ -35,7 +35,7 @@ ARG NPROC
 RUN test -z "$NPROC" && nproc > /nproc || echo -n "$NPROC" > /nproc && mkdir build && cd build && cmake .. && make -j"$(cat /nproc)"
 
 # Pin to the latest Ubuntu LTS for the image base (digest-pinned, kept current by Renovate)
-FROM ubuntu:26.04@sha256:2260313b31c8c011cd2eebe728008efac1b3982be73eb71348ea2648d2c0e09b
+FROM ubuntu:26.04@sha256:513c074113a871b51a8d16ab445c88779d6452d937a164fb5cc479f32668a41d
 
 # Install only the runtime shared libraries that the p2pool binary links against
 # (runtime equivalents of the build-stage -dev packages, verified via ldd on the
