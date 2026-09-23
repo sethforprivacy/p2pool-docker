@@ -1,6 +1,6 @@
 # renovate: datasource=github-releases depName=SChernykh/p2pool
-ARG P2POOL_BRANCH=v4.18
-ARG P2POOL_COMMIT_HASH=1748daae01ee7c657cc77bab5f9862abdf5a6041
+ARG P2POOL_BRANCH=v4.18.1
+ARG P2POOL_COMMIT_HASH=abc833598f80d7a0345b6020ced90f19957d7a7c
 
 # Pin to the latest Ubuntu LTS for the build image base (digest-pinned, kept current by Renovate)
 FROM ubuntu:26.04@sha256:da6fc2be547864451aa253836dd926da33623312df4a9a243e35dc877c378a78 AS build
