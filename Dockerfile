@@ -40,12 +40,15 @@ FROM ubuntu:26.04@sha256:c098726dd9b9733f3e885f8de0ef375206a311b0a317eadc40d347b
 # Install only the runtime shared libraries that the p2pool binary links against
 # (runtime equivalents of the build-stage -dev packages, verified via ldd on the
 # built binary against the pinned Ubuntu 26.04 base)
+# The rockcraft-built base ships Canonical's pebble service manager outside of
+# dpkg, so apt can never patch it; p2pool does not use it, so drop it rather
+# than carry its Go stdlib CVEs
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y libuv1t64 libzmq5 libsodium23 \
     libpgm-5.3-0t64 libnorm1t64 libgssapi-krb5-2 libcurl4t64 libidn2-0 \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /usr/bin/pebble /var/lib/pebble
 
 # Add user and setup directories for p2pool
 RUN useradd -ms /bin/bash p2pool
